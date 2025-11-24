@@ -23,7 +23,7 @@ struct UserController: RouteCollection {
         let user = try req.content.decode(User.self)
         
         if try await User.query(on: req.db).filter(\.$mail == user.mail).first() != nil {
-            throw Abort(.badRequest, reason: "Username déjà utilisé")
+            throw Abort(.badRequest, reason: "mail déjà utilisé")
         }
         
         user.password = try Bcrypt.hash(user.password)
@@ -52,7 +52,7 @@ struct UserController: RouteCollection {
         }
         
         let payload = UserPayload(id: try user.requireID())
-        let signer = JWTSigner.hs256(key: "my_paw")
+        let signer = JWTSigner.hs256(key: "ZakFit_Go_For_It")
         let token = try signer.sign(payload)
         
         return LoginResponse(token: token)

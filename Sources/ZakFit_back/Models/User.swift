@@ -27,13 +27,13 @@ final class User: Model, @unchecked Sendable {
     var password: String
     
     @Field(key: "height")
-    var height: Int
+    var height: Int?
     
     @Field(key: "age")
-    var age: Int
+    var age: Int?
     
     @Field(key: "gender")
-    var gender: String
+    var gender: String?
     
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
