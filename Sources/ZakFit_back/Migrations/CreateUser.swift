@@ -18,6 +18,7 @@ struct CreateUser: AsyncMigration {
             .field("height", .int)
             .field("age", .int)
             .field("gender", .string)
+            .field("diet", .string)
             .field("created_at", .datetime)
             .field("updated_at", .datetime)
             .unique(on: "mail")

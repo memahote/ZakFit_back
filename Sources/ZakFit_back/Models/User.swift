@@ -35,6 +35,9 @@ final class User: Model, @unchecked Sendable {
     @Field(key: "gender")
     var gender: String?
     
+    @Field(key: "diet")
+    var diet: String?
+    
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
     
