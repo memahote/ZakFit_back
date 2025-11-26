@@ -14,8 +14,11 @@ final class Objective: Model, @unchecked Sendable {
     @ID(key: .id)
     var id: UUID?
     
+    @Field(key: "goal")
+    var goal: String
+    
     @Field(key: "weight_goal")
-    var weight: Double
+    var weightGoal: Double
     
     @Field(key: "daily_calorie_goal")
     var dailyCalorieGoal: Int
@@ -24,10 +27,10 @@ final class Objective: Model, @unchecked Sendable {
     var numberTrainingGoal: Int
     
     @Field(key: "training_duration_goal")
-    var trainingDurationGoal: Int
+    var trainingDurationGoal: Int?
     
     @Field(key: "calorie_burned_goal")
-    var calorieBurnedGoal: Int
+    var calorieBurnedGoal: Int?
     
     @Timestamp(key: "created_at", on: .create)
     var createdAt: Date?
@@ -37,16 +40,22 @@ final class Objective: Model, @unchecked Sendable {
     
     init() { }
     
-    init(userID: UUID, weight: Double, dailyCalorieGoal: Int, numberTrainingGoal: Int, trainingDurationGoal: Int, calorieBurnedGoal: Int) {
+    init(userID: UUID, goal: String, weightGoal: Double, dailyCalorieGoal: Int, numberTrainingGoal: Int) {
         self.$user.id = userID
-        self.weight = weight
+        self.goal = goal
+        self.weightGoal = weightGoal
         self.dailyCalorieGoal = dailyCalorieGoal
         self.numberTrainingGoal = numberTrainingGoal
-        self.trainingDurationGoal = trainingDurationGoal
-        self.calorieBurnedGoal = calorieBurnedGoal
     }
+
    
-    func toDTo() -> ObjectiveResponseDTO{
-        ObjectiveResponseDTO(weight: weight, dailyCalorieGoal: dailyCalorieGoal, numberTrainingGoal: numberTrainingGoal, trainingDurationGoal: trainingDurationGoal, calorieBurnedGoal: calorieBurnedGoal, createdAt: createdAt ?? Date())
+    func toDTO() -> ObjectiveResponseDTO {
+        ObjectiveResponseDTO(
+            id: id ?? UUID(),
+            goal: goal,
+            weightGoal: weightGoal,
+            dailyCalorieGoal: dailyCalorieGoal,
+            numberTrainingGoal: numberTrainingGoal
+        )
     }
 }

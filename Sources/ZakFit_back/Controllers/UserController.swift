@@ -18,7 +18,7 @@ struct UserController: RouteCollection {
      
         let protected = users.grouped(JWTMiddleware())
         
-        
+        protected.patch(use: updateUser)
     }
     
     @Sendable

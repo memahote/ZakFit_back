@@ -9,11 +9,17 @@ import Fluent
 import Vapor
 
 
-struct ObjectiveResponseDTO: Content {
-    let weight: Double
+struct CreateObjectiveDTO: Content {
+    let goal: String
+    let weightGoal: Double
     let dailyCalorieGoal: Int
     let numberTrainingGoal: Int
-    let trainingDurationGoal: Int
-    let calorieBurnedGoal: Int
-    let createdAt: Date
+}
+
+struct ObjectiveResponseDTO: Content {
+    let id: UUID
+    let goal: String
+    let weightGoal: Double
+    let dailyCalorieGoal: Int
+    let numberTrainingGoal: Int
 }

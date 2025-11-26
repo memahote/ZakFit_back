@@ -7,7 +7,7 @@ import Vapor
 public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
+    
     app.databases.use(DatabaseConfigurationFactory.mysql(
         hostname: Environment.get("DATABASE_HOST") ?? "127.0.0.1",
         port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 3306,
@@ -20,6 +20,8 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateUser())
     app.migrations.add(UpdateUserAddBirthDate())
     app.migrations.add(CreateWeight())
+    app.migrations.add(CreateObjective())
+    app.migrations.add(UpdateObjective())
     
     try await app.autoMigrate()
 
