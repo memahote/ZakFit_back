@@ -61,5 +61,46 @@ struct UserController: RouteCollection {
         return LoginResponse(token: token)
     }
     
-    
+    @Sendable
+    func updateUser(req: Request) async throws -> UserResponseDTO {
+        let payload = try req.auth.require(UserPayload.self)
+        
+        guard let user = try await User.find(payload.id, on: req.db) else {
+            throw Abort(.notFound, reason: "Utilisateur introuvable")
+        }
+        
+        let updatedInfo = try req.content.decode(UpdateUserDTO.self)
+        
+        if let newFirstName = updatedInfo.firstName {
+            user.firstName = newFirstName
+        }
+
+        if let newLastName = updatedInfo.lastName {
+            user.lastName = newLastName
+        }
+
+        if let newHeight = updatedInfo.height {
+            user.height = newHeight
+        }
+
+        if let newBirthDate = updatedInfo.birthDate {
+            user.birthDate = newBirthDate
+        }
+
+        if let newGender = updatedInfo.gender {
+            user.gender = newGender
+        }
+
+        if let newDiet = updatedInfo.diet {
+            user.diet = newDiet
+        }
+
+        if let newPassword = updatedInfo.password {
+            user.password = try Bcrypt.hash(newPassword)
+        }
+        
+        try await user.save(on: req.db)
+        
+        return user.toDTO()
+    }
 }

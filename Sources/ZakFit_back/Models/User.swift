@@ -46,6 +46,18 @@ final class User: Model, @unchecked Sendable, Authenticatable{
     
     init() { }
     
+    func toDTO() -> UserResponseDTO {
+            UserResponseDTO(
+                id: id!,
+                firstName: firstName,
+                lastName: lastName,
+                height: height,
+                birthDate: birthDate,
+                gender: gender,
+                diet: diet,
+                createdAt: createdAt
+            )
+        }
    
 }
 
