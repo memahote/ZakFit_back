@@ -16,6 +16,9 @@ struct UserController: RouteCollection {
         users.post("register", use: createUser)
         users.post("login", use: login)
      
+        let protected = users.grouped(JWTMiddleware())
+        
+        
     }
     
     @Sendable
@@ -57,5 +60,6 @@ struct UserController: RouteCollection {
         
         return LoginResponse(token: token)
     }
+    
     
 }

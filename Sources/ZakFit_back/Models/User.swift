@@ -29,8 +29,8 @@ final class User: Model, @unchecked Sendable, Authenticatable{
     @Field(key: "height")
     var height: Int?
     
-    @Field(key: "age")
-    var age: Int?
+    @Field(key: "birth_date")
+    var birthDate: Date?
     
     @Field(key: "gender")
     var gender: String?
@@ -48,3 +48,5 @@ final class User: Model, @unchecked Sendable, Authenticatable{
     
    
 }
+
+
