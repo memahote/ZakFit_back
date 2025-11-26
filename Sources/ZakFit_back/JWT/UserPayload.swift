@@ -20,7 +20,7 @@ struct UserPayload : JWTPayload, Authenticatable {
     
     init(id: UUID) {
         self.id = id
-        self.expiration = Date().addingTimeInterval(3600 * 24 * 7)
+        self.expiration = Date().addingTimeInterval(3600 * 24 * 15)
     }
     
 }
