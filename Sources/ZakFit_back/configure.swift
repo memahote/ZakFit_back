@@ -7,16 +7,23 @@ import Vapor
 public func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
-
+    
     app.databases.use(DatabaseConfigurationFactory.mysql(
-        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? MySQLConfiguration.ianaPortNumber,
-        username: Environment.get("DATABASE_USERNAME") ?? "vapor_username",
-        password: Environment.get("DATABASE_PASSWORD") ?? "vapor_password",
-        database: Environment.get("DATABASE_NAME") ?? "vapor_database"
+        hostname: Environment.get("DATABASE_HOST") ?? "127.0.0.1",
+        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 3306,
+        username: Environment.get("DATABASE_USERNAME") ?? "root",
+        password: Environment.get("DATABASE_PASSWORD") ?? "",
+        database: Environment.get("DATABASE_NAME") ?? "Zakfit"
     ), as: .mysql)
 
-    app.migrations.add(CreateTodo())
+//    app.migrations.add(CreateTodo())
+    app.migrations.add(CreateUser())
+    app.migrations.add(UpdateUserAddBirthDate())
+    app.migrations.add(CreateWeight())
+    app.migrations.add(CreateObjective())
+    app.migrations.add(UpdateObjective())
+    
+    try await app.autoMigrate()
 
     // register routes
     try routes(app)
