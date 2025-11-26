@@ -15,21 +15,22 @@ struct WeightController: RouteCollection{
         
         let protected = weights.grouped(JWTMiddleware())
         
-//        protected.post(use: createWeight)
+        protected.post(use: createWeight)
         
-     
+        
     }
     
     @Sendable
     func createWeight(req: Request) async throws -> WeightResponseDTO{
-        let payload = try req.auth.require(User.self)
-        
+        let payload = try req.auth.require(UserPayload.self)
+
         let clientInput = try req.content.decode(CreateWeightDTO.self)
-        let weight = Weight(userID: payload.id!, weight: clientInput.weight)
+        let weight = Weight(userID: payload.id, weight: clientInput.weight)
         
         try await weight.save(on: req.db)
         
         return weight.toDTO()
     }
+    
     
 }
