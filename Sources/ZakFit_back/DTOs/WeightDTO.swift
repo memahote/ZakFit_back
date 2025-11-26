@@ -16,5 +16,5 @@ struct CreateWeightDTO: Content {
 struct WeightResponseDTO: Content {
     var id: UUID
     var weight: Double
-    var date: Date
+    var date: String
 }

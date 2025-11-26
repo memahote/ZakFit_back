@@ -34,7 +34,7 @@ final class Weight: Model, @unchecked Sendable {
         WeightResponseDTO(
             id: id!,
             weight: weight,
-            date: createdAt!
+            date: createdAt!.formattedDate()
         )
     }
 }
