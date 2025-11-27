@@ -58,4 +58,15 @@ final class Objective: Model, @unchecked Sendable {
             numberTrainingGoal: numberTrainingGoal
         )
     }
+    
+    func toFullDTO() -> ObjectiveFullResponseDTO{
+        ObjectiveFullResponseDTO(
+            id: id ?? UUID(),
+            goal: goal,
+            weightGoal: weightGoal,
+            dailyCalorieGoal: dailyCalorieGoal,
+            numberTrainingGoal: numberTrainingGoal,
+            trainingDurationGoal: trainingDurationGoal ?? 0,
+            calorieBurnedGoal: calorieBurnedGoal ?? 0)
+    }
 }

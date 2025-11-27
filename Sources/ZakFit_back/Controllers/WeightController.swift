@@ -16,6 +16,7 @@ struct WeightController: RouteCollection{
         let protected = weights.grouped(JWTMiddleware())
         
         protected.post(use: createWeight)
+        protected.get(use: getWeights)
         
         
     }
@@ -23,7 +24,7 @@ struct WeightController: RouteCollection{
     @Sendable
     func createWeight(req: Request) async throws -> WeightResponseDTO{
         let payload = try req.auth.require(UserPayload.self)
-
+        
         let clientInput = try req.content.decode(CreateWeightDTO.self)
         let weight = Weight(userID: payload.id, weight: clientInput.weight)
         
@@ -32,5 +33,16 @@ struct WeightController: RouteCollection{
         return weight.toDTO()
     }
     
-    
+    @Sendable
+    func getWeights(req: Request) async throws -> [WeightResponseDTO] {
+        let payload = try req.auth.require(UserPayload.self)
+        
+        let weights = try await Weight
+            .query(on: req.db)
+            .filter(\.$user.$id == payload.id)
+            .sort(\.$createdAt, .ascending)
+            .all()
+        
+        return weights.map{ $0.toDTO()}
+    }
 }
