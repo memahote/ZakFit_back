@@ -23,3 +23,22 @@ struct ObjectiveResponseDTO: Content {
     let dailyCalorieGoal: Int
     let numberTrainingGoal: Int
 }
+
+struct UpdateObjectiveDTO: Content {
+    let goal: String?
+    let weightGoal: Double?
+    let dailyCalorieGoal: Int?
+    let numberTrainingGoal: Int?
+    let trainingDurationGoal : Int?
+    let calorieBurnedGoal: Int?
+}
+
+struct ObjectiveFullResponseDTO: Content {
+    let id: UUID
+    let goal: String
+    let weightGoal: Double
+    let dailyCalorieGoal: Int
+    let numberTrainingGoal: Int
+    let trainingDurationGoal : Int
+    let calorieBurnedGoal: Int
+}
