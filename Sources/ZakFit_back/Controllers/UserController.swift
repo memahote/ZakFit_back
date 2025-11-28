@@ -15,10 +15,28 @@ struct UserController: RouteCollection {
         
         users.post("register", use: createUser)
         users.post("login", use: login)
-     
+        users.get("all", use: getAllUsers)
         let protected = users.grouped(JWTMiddleware())
         
         protected.patch(use: updateUser)
+        protected.get(use: getUser)
+        protected.delete(":id", use: deleteUserById)
+    }
+    
+    @Sendable
+    func getAllUsers(req: Request) async throws -> [UserResponseDTO] {
+        try await User.query(on: req.db).all().map { $0.toDTO() }
+    }
+    
+    @Sendable
+    func getUser(req: Request) async throws -> UserResponseDTO {
+        let payload = try req.auth.require(UserPayload.self)
+
+        guard let user = try await User.find(payload.id, on: req.db) else {
+            throw Abort(.notFound, reason: "Utilisateur introuvable")
+        }
+
+        return user.toDTO()
     }
     
     @Sendable
@@ -102,5 +120,19 @@ struct UserController: RouteCollection {
         try await user.save(on: req.db)
         
         return user.toDTO()
+    }
+    
+    @Sendable
+    func deleteUserById(req: Request) async throws -> HTTPStatus {
+        guard let id = req.parameters.get("id", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "ID invalide")
+        }
+        
+        guard let user = try await User.find(id, on: req.db) else {
+            throw Abort(.notFound, reason: "Utilisateur introuvable")
+        }
+
+        try await user.delete(on: req.db)
+        return .noContent
     }
 }
