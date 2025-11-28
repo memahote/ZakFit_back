@@ -15,6 +15,16 @@ public func configure(_ app: Application) async throws {
         password: Environment.get("DATABASE_PASSWORD") ?? "",
         database: Environment.get("DATABASE_NAME") ?? "Zakfit"
     ), as: .mysql)
+    
+    let corsConfiguration = CORSMiddleware.Configuration(
+        allowedOrigin: .all,
+        allowedMethods: [.GET, .POST, .PATCH],
+        allowedHeaders: [.accept, .authorization, .contentType, .origin],
+        cacheExpiration: 500
+    )
+    
+    let cors = CORSMiddleware(configuration: corsConfiguration)
+    app.middleware.use(cors)
 
 //    app.migrations.add(CreateTodo())
     app.migrations.add(CreateUser())
