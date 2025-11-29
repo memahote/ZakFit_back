@@ -36,6 +36,7 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateFood())
     app.migrations.add(CreateMealFood())
     app.migrations.add(AddTypeToFood())
+    app.migrations.add(UpdateFoodIntToDouble())
     
     try await app.autoMigrate()
 

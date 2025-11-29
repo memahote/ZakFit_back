@@ -18,6 +18,7 @@ struct FoodController: RouteCollection{
         protected.get("all", use: getAllFoods)
         protected.post(use: addFood)
         protected.delete(":id", use: deleteFood)
+        protected.get(":type", use: getFoodByType)
         
     }
     
@@ -26,6 +27,21 @@ struct FoodController: RouteCollection{
         try req.auth.require(UserPayload.self)
         
         return try await Food.query(on: req.db).all().map{ $0.toDTO()}
+    }
+    
+    @Sendable
+    func getFoodByType(req: Request) async throws -> [FoodResponseDTO]{
+        try req.auth.require(UserPayload.self)
+        
+        guard let mealType = req.parameters.get("type", as: String.self) else {
+            throw Abort(.badRequest, reason: "Missing type of meal")
+        }
+        
+        let filteredFood = try await Food.query(on: req.db)
+            .filter(\.$type == mealType)
+            .all()
+        
+        return filteredFood.map { $0.toDTO()}
     }
     
     @Sendable
