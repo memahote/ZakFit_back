@@ -32,6 +32,10 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(CreateWeight())
     app.migrations.add(CreateObjective())
     app.migrations.add(UpdateObjective())
+    app.migrations.add(CreateMeal())
+    app.migrations.add(CreateFood())
+    app.migrations.add(CreateMealFood())
+    app.migrations.add(AddTypeToFood())
     
     try await app.autoMigrate()
 
