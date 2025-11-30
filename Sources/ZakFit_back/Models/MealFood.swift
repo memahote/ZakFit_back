@@ -47,7 +47,8 @@ final class MealFood: Model,  @unchecked Sendable {
             carb: self.carb,
             lipid: self.lipid,
             name: self.food.name,
-            icon: self.food.icon
+            icon: self.food.icon,
+            type: self.food.type
         )
     }
 }

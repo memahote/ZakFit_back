@@ -32,7 +32,11 @@ struct MealFoodController: RouteCollection{
         
         let input = try req.content.decode(MealFoodDTO.self)
         
-        guard let meal = try await Meal.find(mealId, on: req.db) else {
+        guard input.quantity > 0 else {
+            throw Abort(.badRequest, reason: "Quantity must be greater than 0")
+        }
+        
+        guard let _ = try await Meal.find(mealId, on: req.db) else {
             throw Abort(.notFound, reason: "Meal not found")
         }
         

@@ -25,6 +25,7 @@ struct MealFoodResponseDTO: Content {
     let lipid: Double
     let name: String 
     let icon: String
+    let type: String
 }
 
 struct MealTotalMacroDTO: Content {

@@ -16,7 +16,7 @@ struct MealController: RouteCollection{
         let protected = meals.grouped(JWTMiddleware())
         protected.post(use: createMeal)
         protected.get("all", use: getMeals)
-
+        protected.get("day", use: getMealsOfDay)
      
         
     }
@@ -34,6 +34,7 @@ struct MealController: RouteCollection{
         for meal in meals {
             let mealFoods = try await MealFood.query(on: req.db)
                 .filter(\.$meal.$id == meal.id!)
+                .with(\.$food)
                 .all()
             
             let foodsDTO = mealFoods.map { $0.toDTO() }
@@ -61,6 +62,27 @@ struct MealController: RouteCollection{
             createdAt: meal.createdAt,
             foods: []
         )
+    }
+
+    func getMealsOfDay(req: Request) async throws -> [MealLightDTO] {
+        let user = try req.auth.require(UserPayload.self)
+
+        guard let date = req.query[String.self, at: "date"] else {
+            throw Abort(.badRequest, reason: "Missing ?date=YYYY-MM-DD")
+        }
+
+        let meals = try await Meal.query(on: req.db)
+            .filter(\.$user.$id == user.id)
+            .filter(.sql(unsafeRaw: "DATE(created_at) = '\(date)'"))
+            .all()
+
+        return meals.map {
+            MealLightDTO(
+                id: $0.id!,
+                type: $0.type,
+                createdAt: $0.createdAt
+            )
+        }
     }
 
 

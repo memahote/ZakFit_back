@@ -19,3 +19,8 @@ struct MealResponseDTO: Content {
     let foods: [MealFoodResponseDTO]
 }
 
+struct MealLightDTO: Content {
+    let id: UUID
+    let type: String
+    let createdAt: Date?
+}
