@@ -19,6 +19,17 @@ struct MealFoodResponseDTO: Content {
     let id: UUID
     let foodId: UUID
     let quantity: Int
-    let calorie: Int 
+    let calorie: Int
+    let protein: Double
+    let carb : Double
+    let lipid: Double
+    let name: String 
+    let icon: String
 }
 
+struct MealTotalMacroDTO: Content {
+    let calories: Int
+    let protein: Double
+    let carb: Double
+    let lipid: Double
+}

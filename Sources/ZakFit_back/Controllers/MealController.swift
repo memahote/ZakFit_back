@@ -14,7 +14,9 @@ struct MealController: RouteCollection{
         let meals = routes.grouped("meals")
         
         let protected = meals.grouped(JWTMiddleware())
-        
+        protected.post(use: createMeal)
+        protected.get("all", use: getMeals)
+
      
         
     }
@@ -41,5 +43,25 @@ struct MealController: RouteCollection{
 
         return result
     }
+
+    @Sendable
+    func createMeal(req: Request) async throws -> MealResponseDTO {
+        let payload = try req.auth.require(UserPayload.self)
+        let input = try req.content.decode(MealDTO.self)
+
+        let meal = Meal()
+        meal.type = input.type
+        meal.$user.id = payload.id
+
+        try await meal.save(on: req.db)
+
+        return MealResponseDTO(
+            id: try meal.requireID(),
+            type: meal.type,
+            createdAt: meal.createdAt,
+            foods: []
+        )
+    }
+
 
 }

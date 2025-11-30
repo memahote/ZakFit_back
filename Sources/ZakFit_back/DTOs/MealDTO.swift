@@ -10,9 +10,7 @@ import Vapor
 
 struct MealDTO: Content {
     let type: String
-    let foods: [MealFoodDTO]
 }
-
 
 struct MealResponseDTO: Content {
     let id: UUID

@@ -26,14 +26,28 @@ final class MealFood: Model,  @unchecked Sendable {
     @Field(key: "calorie")
     var calorie: Int
     
+    @Field(key: "protein")
+    var protein: Double
+    
+    @Field(key: "carb")
+    var carb: Double
+    
+    @Field(key: "lipid")
+    var lipid: Double
+    
     init() {}
     
     func toDTO() -> MealFoodResponseDTO {
-            MealFoodResponseDTO(
-                id: self.id!,
-                foodId: self.$food.id,
-                quantity: self.quantity,
-                calorie: self.calorie
-            )
-        }
+        MealFoodResponseDTO(
+            id: self.id!,
+            foodId: self.$food.id,
+            quantity: self.quantity,
+            calorie: self.calorie,
+            protein: self.protein,
+            carb: self.carb,
+            lipid: self.lipid,
+            name: self.food.name,
+            icon: self.food.icon
+        )
+    }
 }
