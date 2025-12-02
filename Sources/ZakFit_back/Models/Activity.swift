@@ -24,6 +24,9 @@ final class Activity: Model, @unchecked Sendable {
     @Field(key: "calories_per_min")
     var caloriesPerMin: Double
     
+    @Field(key: "icon")
+    var icon: String
+    
     
     init() { }
     
@@ -32,7 +35,8 @@ final class Activity: Model, @unchecked Sendable {
             id: self.id!,
             category: self.category,
             name: self.name,
-            caloriesPerMin: self.caloriesPerMin)
+            caloriesPerMin: self.caloriesPerMin,
+            icon: self.icon)
     }
     
 }
