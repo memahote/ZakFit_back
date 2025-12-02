@@ -9,20 +9,30 @@ import Fluent
 import Vapor
 
 final class Activity: Model, @unchecked Sendable {
-    static let schema = "activity"
+    static let schema = "activities"
+    
     
     @ID(key: .id)
     var id: UUID?
     
+    @Field(key: "category")
+    var category: String
+    
+    @Field(key: "name")
+    var name: String
+    
+    @Field(key: "calories_per_min")
+    var caloriesPerMin: Double
     
     
-    @Parent(key: "user_id")
-    var user: User
+    init() { }
     
-    init() {
-        
+    func toDTO()->ActivityResponseDTO{
+        ActivityResponseDTO(
+            id: self.id!,
+            category: self.category,
+            name: self.name,
+            caloriesPerMin: self.caloriesPerMin)
     }
-    
-
     
 }
