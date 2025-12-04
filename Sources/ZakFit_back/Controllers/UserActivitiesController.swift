@@ -24,18 +24,28 @@ struct UserActivitiesController: RouteCollection{
     
     @Sendable
     func addActivityToUser(req: Request) async throws -> UserActivityResponseDTO {
-        try req.auth.require(UserPayload.self)
+        let payload = try req.auth.require(UserPayload.self)
         
-        let input = try req.content.decode(UserActivityDTO.self).toModel()
+        let input = try req.content.decode(UserActivityDTO.self)
         
-        guard let activity = try await Activity.find(input.activity.id, on: req.db) else {
+        guard let activity = try await Activity.find(input.activity, on: req.db) else {
             throw Abort(.notFound, reason: "Activity not found")
         }
         
-        try await input.save(on: req.db)
+        let userActivity = UserActivity()
+            userActivity.$user.id = payload.id
+            userActivity.$activity.id = input.activity
+            userActivity.duration = input.duration
+            userActivity.calories = input.calories
+            userActivity.date = input.date
         
-        return try input.toDTO(activity: activity)
+        try await userActivity.save(on: req.db)
+        
+        try await userActivity.$activity.load(on: req.db)
+        
+        return try userActivity.toDTO(activity: activity)
     }
+    
     
     func getAllUserActivities(req: Request) async throws -> [UserActivityResponseDTO] {
         let payload = try req.auth.require(UserPayload.self)

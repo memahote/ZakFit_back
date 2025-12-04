@@ -17,7 +17,7 @@ struct UserActivityDTO: Content {
     func toModel() -> UserActivity {
         let model = UserActivity()
         
-        model.activity.id = self.activity
+        model.$activity.id = self.activity
         model.duration = self.duration
         model.calories = self.calories
         model.date = self.date
@@ -32,5 +32,9 @@ struct UserActivityResponseDTO: Content {
     let duration: Int
     let calories: Double?
     let date: Date
+    let category: String
+    let name: String
+    let caloriesPerMin : Double
+    let icon : String
 }
 
