@@ -38,6 +38,9 @@ public func configure(_ app: Application) async throws {
     app.migrations.add(AddTypeToFood())
     app.migrations.add(UpdateFoodIntToDouble())
     app.migrations.add(UpdateMealFoodAddMacros())
+    app.migrations.add(CreateActivities())
+    app.migrations.add(CreateUserActivities())
+    app.migrations.add(AddIconToActivity())
     
     try await app.autoMigrate()
 

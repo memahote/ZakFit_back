@@ -17,6 +17,7 @@ struct MealController: RouteCollection{
         protected.post(use: createMeal)
         protected.get("all", use: getMeals)
         protected.get("day", use: getMealsOfDay)
+        protected.delete(":mealID", use: deleteMeal)
      
         
     }
@@ -54,7 +55,19 @@ struct MealController: RouteCollection{
         meal.type = input.type
         meal.$user.id = payload.id
 
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        if let date = formatter.date(from: input.createdAt) {
+            meal.createdAt = date
+        } else {
+            throw Abort(.badRequest, reason: "Invalid date format")
+        }
+
         try await meal.save(on: req.db)
+        
+        print(meal)
 
         return MealResponseDTO(
             id: try meal.requireID(),
@@ -63,6 +76,25 @@ struct MealController: RouteCollection{
             foods: []
         )
     }
+//    @Sendable
+//    func createMeal(req: Request) async throws -> MealResponseDTO {
+//        let payload = try req.auth.require(UserPayload.self)
+//        let input = try req.content.decode(MealDTO.self)
+//
+//        let meal = Meal()
+//        meal.type = input.type
+//        meal.$user.id = payload.id
+//        meal.createdAt = input.createdAt
+//
+//        try await meal.save(on: req.db)
+//
+//        return MealResponseDTO(
+//            id: try meal.requireID(),
+//            type: meal.type,
+//            createdAt: meal.createdAt,
+//            foods: []
+//        )
+//    }
 
     func getMealsOfDay(req: Request) async throws -> [MealLightDTO] {
         let user = try req.auth.require(UserPayload.self)
@@ -85,5 +117,33 @@ struct MealController: RouteCollection{
         }
     }
 
+    @Sendable
+    func deleteMeal(req: Request) async throws -> HTTPStatus {
+        let payload = try req.auth.require(UserPayload.self)
+
+        guard let mealID = req.parameters.get("mealID", as: UUID.self) else {
+            throw Abort(.badRequest, reason: "Missing meal ID")
+        }
+
+        guard let meal = try await Meal.query(on: req.db)
+            .filter(\.$id == mealID)
+            .filter(\.$user.$id == payload.id)
+            .first()
+        else {
+            throw Abort(.notFound, reason: "Meal not found or doesn't belong to user")
+        }
+
+        let mealFoods = try await MealFood.query(on: req.db)
+            .filter(\.$meal.$id == mealID)
+            .all()
+
+        for mf in mealFoods {
+            try await mf.delete(on: req.db)
+        }
+
+        try await meal.delete(on: req.db)
+
+        return .noContent
+    }
 
 }
