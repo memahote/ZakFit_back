@@ -19,6 +19,8 @@ struct MealFoodController: RouteCollection{
         protected.delete(":id", use: deleteFoodFromMeal)
         protected.get(":mealId", use: getMealFoods)
         protected.get("total", ":mealId", use: getMealTotals)
+        protected.get("calories", use: getWeeklyConsumedCalories)
+
         
     }
     
@@ -119,5 +121,57 @@ struct MealFoodController: RouteCollection{
         )
     }
     
+    func getWeeklyConsumedCalories(req: Request) async throws -> WeeklyCaloriesDTO {
+        let payload = try req.auth.require(UserPayload.self)
+        let calendar = Calendar(identifier: .iso8601)
+        let now = Date()
+
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
+            throw Abort(.internalServerError, reason: "Cannot compute week interval")
+        }
+
+        let meals = try await Meal.query(on: req.db)
+            .filter(\.$user.$id == payload.id)
+            .filter(\.$createdAt >= weekInterval.start)
+            .filter(\.$createdAt < weekInterval.end)
+            .all()
+
+        let mealIds = meals.compactMap { $0.id }
+
+        let mealFoods = try await MealFood.query(on: req.db)
+            .filter(\.$meal.$id ~~ mealIds)
+            .all()
+
+        var dailyCalories: [String: Int] = [
+            "monday": 0, "tuesday": 0, "wednesday": 0,
+            "thursday": 0, "friday": 0, "saturday": 0, "sunday": 0
+        ]
+
+        for meal in meals {
+            let day = calendar.component(.weekday, from: meal.createdAt ?? now)
+            let mealId = meal.id!
+
+            let totalCalories = mealFoods
+                .filter { $0.$meal.id == mealId }
+                .reduce(0) { $0 + $1.calorie }
+
+            let key: String
+            switch day {
+            case 2: key = "monday"
+            case 3: key = "tuesday"
+            case 4: key = "wednesday"
+            case 5: key = "thursday"
+            case 6: key = "friday"
+            case 7: key = "saturday"
+            case 1: key = "sunday"
+            default: continue
+            }
+
+            dailyCalories[key, default: 0] += totalCalories
+        }
+
+        return WeeklyCaloriesDTO(days: dailyCalories)
+    }
+
     
 }

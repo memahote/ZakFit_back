@@ -38,3 +38,11 @@ struct UserActivityResponseDTO: Content {
     let icon : String
 }
 
+struct WeeklyTrainingStatsDTO: Content {
+    let count: Int
+    let totalDuration: Int
+}
+
+struct WeeklyCaloriesDTO: Content {
+    let days: [String: Int]
+}

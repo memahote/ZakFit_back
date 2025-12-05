@@ -18,7 +18,9 @@ struct UserActivitiesController: RouteCollection{
         protected.post(use: addActivityToUser)
         protected.get("all", use: getAllUserActivities)
         protected.delete(":activityId", use: deleteUserActivity)
-        
+        protected.get("count", use: getWeeklyTrainingCount)
+        protected.get("calories", use: getWeeklyBurnedCalories)
+
         
     }
     
@@ -70,4 +72,71 @@ struct UserActivitiesController: RouteCollection{
         try await userActivity.delete(on: req.db)
         return .noContent
     }
+    
+    func getWeeklyTrainingCount(req: Request) async throws -> WeeklyTrainingStatsDTO {
+        let payload = try req.auth.require(UserPayload.self)
+        let calendar = Calendar(identifier: .iso8601)
+        let now = Date()
+        
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
+            throw Abort(.internalServerError, reason: "Cannot compute week interval")
+        }
+        
+        let activities = try await UserActivity.query(on: req.db)
+            .filter(\.$user.$id == payload.id)
+            .filter(\.$date >= weekInterval.start)
+            .filter(\.$date < weekInterval.end)
+            .all()
+        
+        let count = activities.count
+        let totalDuration = activities.reduce(0) { $0 + ($1.duration) }
+
+        return WeeklyTrainingStatsDTO(
+            count: count,
+            totalDuration: totalDuration
+        )
+    }
+
+    func getWeeklyBurnedCalories(req: Request) async throws -> WeeklyCaloriesDTO {
+        let payload = try req.auth.require(UserPayload.self)
+        let calendar = Calendar(identifier: .iso8601)
+        let now = Date()
+
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
+            throw Abort(.internalServerError, reason: "Cannot compute week interval")
+        }
+
+        let activities = try await UserActivity.query(on: req.db)
+            .filter(\.$user.$id == payload.id)
+            .filter(\.$date >= weekInterval.start)
+            .filter(\.$date < weekInterval.end)
+            .all()
+
+        var dailyCalories: [String: Int] = [
+            "monday": 0, "tuesday": 0, "wednesday": 0,
+            "thursday": 0, "friday": 0, "saturday": 0, "sunday": 0
+        ]
+
+        for act in activities {
+            let day = calendar.component(.weekday, from: act.date)
+
+            let key: String
+            switch day {
+            case 2: key = "monday"
+            case 3: key = "tuesday"
+            case 4: key = "wednesday"
+            case 5: key = "thursday"
+            case 6: key = "friday"
+            case 7: key = "saturday"
+            case 1: key = "sunday"
+            default: continue
+            }
+
+            dailyCalories[key, default: 0] += Int(act.calories ?? 0)
+        }
+
+        return WeeklyCaloriesDTO(days: dailyCalories)
+    }
+
+
 }
