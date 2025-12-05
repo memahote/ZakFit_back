@@ -17,8 +17,8 @@ final class Meal: Model, @unchecked Sendable {
     @Field(key: "type")
     var type: String
     
-    @Timestamp(key: "created_at", on: .create)
-    var createdAt: Date?
+    @Field(key: "created_at")
+    var createdAt: Date
     
     @Parent(key: "user_id")
     var user: User
